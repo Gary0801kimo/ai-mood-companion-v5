@@ -11,20 +11,18 @@ function App() {
   const chatRef = useRef(null);
 
   useEffect(() => {
-    i18n.changeLanguage('zh'); // 預設繁體中文
+    i18n.changeLanguage('zh');
   }, []);
 
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    window.addEventListener('beforeunload', () => {
       fetch('/.netlify/functions/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages }),
-        keepalive: true
+        keepalive: true,
       });
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    });
   }, [messages]);
 
   useEffect(() => {
@@ -44,18 +42,20 @@ function App() {
       const res = await fetch('/.netlify/functions/gpt-reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: updatedMessages, lang })
+        body: JSON.stringify({ message: input, lang }),
       });
       const data = await res.json();
       const botMessage = {
         role: 'assistant',
-        content: data.reply || '（系統錯誤，請稍後再試）',
+        reply: data.reply || '（AI 回覆失敗）',
         quote: data.quote || '',
-        depressionRisk: data.depressionRisk || ''
+        risk: data.risk || '',
+        debug: data.debug || false,
+        error: data.error || '',
       };
       setMessages([...updatedMessages, botMessage]);
     } catch (err) {
-      console.error('GPT 回應失敗：', err);
+      console.error('GPT 呼叫錯誤:', err);
     }
   };
 
@@ -75,7 +75,7 @@ function App() {
         borderRadius: '1rem'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-          <h2>AI Mood Companion</h2>
+          <h2>{t('title')}</h2>
           <div>
             <span style={{ marginRight: 8 }}>🌐</span>
             <select value={lang} onChange={(e) => {
@@ -106,11 +106,21 @@ function App() {
                 maxWidth: '80%',
                 wordBreak: 'break-word'
               }}>
-                <div>{m.role === 'user' ? '你' : '🌤️'}：{m.content}</div>
-                {m.quote && (
-                  <div style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
-                    💬 金句：「{m.quote}」<br />
-                    🧠 憂鬱傾向：{m.depressionRisk}
+                {m.role === 'user' ? (
+                  <div>你：{m.content}</div>
+                ) : (
+                  <div>
+                    <div>🌤️ AI 回覆：{m.reply}</div>
+                    {m.quote && m.reply !== '（AI 回覆失敗）' && (
+                      <div style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                        🌸 療癒金句：「{m.quote}」
+                      </div>
+                    )}
+                    {m.risk === 'high' && (
+                      <div style={{ color: 'red', fontSize: '0.9rem', marginTop: '0.5rem' }}>
+                        🧠 憂鬱傾向提示：我們偵測到你可能有情緒低落的狀態，請尋求身邊的協助或支持。
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

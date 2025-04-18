@@ -2,9 +2,9 @@
 const fetch = require("node-fetch");
 
 const systemPrompts = {
-  zh: "你是一位溫柔療癒系的 AI 心靈好友「🌤️」，請根據使用者的情緒內容，給出溫暖的回應與具體建議，避免制式句。結尾附上一句風格一致的療癒金句。若內容有憂鬱傾向，請內部評估風險，並柔性提醒使用者，但不要讓對話顯得嚴肅或嚇人。",
-  en: "You are a gentle, therapeutic AI friend named '🌤️'. Based on the user's emotional message, reply warmly and naturally with practical support. Include a healing quote. If you sense depressive tendencies, gently offer support without sounding alarming.",
-  ja: "あなたは癒し系AIの「🌤️」です。ユーザーの感情に寄り添い、優しく自然な言葉で励ましてください。最後に癒しの一言も添えてください。鬱の傾向があれば、やさしくそっと寄り添ってください。"
+  zh: "你是一位溫柔療癒系的 AI 心靈好友「🌤️」，請根據使用者的情緒內容，給出溫暖的回應與具體建議。請將回覆結尾加上一句療癒金句（可用「療癒金句：」標示）。",
+  en: "You are a gentle, therapeutic AI friend named '🌤️'. Based on the user's emotional message, reply warmly and naturally with practical support. At the end of your message, include a healing quote, starting with 'Quote:'.",
+  ja: "あなたは癒し系AIの「🌤️」です。ユーザーの感情に寄り添い、優しい言葉で励ましてください。最後に癒しの一言を付けてください（「癒しの言葉：」で始めてください）。"
 };
 
 exports.handler = async function (event) {
@@ -48,14 +48,20 @@ exports.handler = async function (event) {
     }
 
     const content = result.choices?.[0]?.message?.content || "";
+    let reply = content;
+    let quote = "";
+
+    // 嘗試依標示切開
+    const match = content.match(/(?:療癒金句|Quote|癒しの言葉)[：:\-]?(.*)/);
+    if (match) {
+      quote = match[1].trim().replace(/["「」]/g, "");
+      reply = content.replace(match[0], "").trim();
+    }
+
     let risk = "low";
     if (userMessage.match(/(想死|痛苦|沒人愛|絕望|崩潰|不想活|自殺|黑暗)/)) {
       risk = "high";
     }
-
-    const lines = content.split("\n").filter((l) => l.trim());
-    const reply = lines.slice(0, lines.length - 1).join("\n").trim() || "（AI 回覆失敗）";
-    const quote = lines[lines.length - 1]?.replace(/["「」]/g, "").trim() || "";
 
     return {
       statusCode: 200,
