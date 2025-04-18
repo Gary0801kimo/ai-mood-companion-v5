@@ -6,7 +6,7 @@ exports.handler = async (event) => {
     const body = JSON.parse(event.body);
     const formatted = body.messages.map((m) => {
       return `${m.role.toUpperCase()}：${m.content}${
-        m.quote ? `\n💬 金句：「\${m.quote}」\n🧠 憂鬱傾向：\${m.depressionRisk}` : ''
+        m.quote ? `\n💬 金句：「${m.quote}」\n🧠 憂鬱傾向：${m.depressionRisk}` : ''
       }`;
     }).join('\n\n');
 
