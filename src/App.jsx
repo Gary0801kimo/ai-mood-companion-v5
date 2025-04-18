@@ -51,7 +51,7 @@ export default function App() {
         ]
       })
     });
-    const data = await res.json();
+    const data = res.json();
     const gpt = JSON.parse(data.choices[0].message.content);
     const aiMsg = {
       role: 'assistant',
@@ -68,7 +68,7 @@ export default function App() {
       body: JSON.stringify({ messages }),
     });
 
-    const result = await res.json();
+    const result = res.json();
     if (res.ok) {
       alert('✅ 測試寄信成功！');
       console.log(result);
