@@ -22,7 +22,6 @@ export default function App() {
           body: JSON.stringify({ messages }),
           keepalive: true
         });
-      }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -75,7 +74,6 @@ export default function App() {
     } else {
       alert('❌ 測試寄信失敗！');
       console.error(result);
-    }
   };
 
   return (
@@ -158,4 +156,3 @@ export default function App() {
         fontSize: '0.9rem'
     </div>
   );
-}
