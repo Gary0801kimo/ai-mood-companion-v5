@@ -34,7 +34,7 @@ export default function App() {
     setMessages([...messages, userMsg]);
     setInput('');
 
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -62,7 +62,7 @@ export default function App() {
     setMessages(prev => [...prev, aiMsg]);
   };
 
-    const res = await fetch('/.netlify/functions/send-email', {
+    const res = fetch('/.netlify/functions/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages }),
