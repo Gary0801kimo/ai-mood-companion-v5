@@ -140,7 +140,6 @@ export default function App() {
             marginRight: '0.5rem'
           }}
         />
-        <button onClick={sendMessage} style={{
           padding: '0.75rem 1.5rem',
           borderRadius: '0.5rem',
           border: 'none',
@@ -148,7 +147,6 @@ export default function App() {
           color: 'white',
           fontWeight: 'bold',
           cursor: 'pointer'
-        }}>{t('send')}</button>
       </div>
 
         padding: '0.5rem 1rem',
@@ -158,7 +156,6 @@ export default function App() {
         border: 'none',
         cursor: 'pointer',
         fontSize: '0.9rem'
-      }}>📤 測試寄信</button>
     </div>
   );
 }
