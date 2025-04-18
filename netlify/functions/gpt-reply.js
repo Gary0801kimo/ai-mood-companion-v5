@@ -1,51 +1,57 @@
 
 const { Configuration, OpenAIApi } = require("openai");
 
-exports.handler = async function (event, context) {
-  try {
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-    const openai = new OpenAIApi(configuration);
+exports.handler = async function (event, context, callback) {
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
+  const openai = new OpenAIApi(configuration);
+
+  try {
     const body = JSON.parse(event.body || "{}");
     const userMessage = body.message || "";
 
-    const completion = await openai.createChatCompletion({
+    const response = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
-          content: "你是一個溫暖的 AI 好朋友，請針對使用者訊息給予療癒回應，並附上療癒金句，同時判斷訊息是否有憂鬱傾向。",
+          content: "你是一位療癒系 AI，請安慰使用者並給一段療癒金句，同時分析訊息是否憂鬱。",
         },
-        { role: "user", content: userMessage },
+        {
+          role: "user",
+          content: userMessage,
+        },
       ],
     });
 
-    const responseText = completion.data.choices[0].message.content;
-
-    const reply = responseText;
+    const content = response.data.choices[0].message.content;
     let quote = "";
     let risk = "low";
 
-    const lines = responseText.split("\n").filter((l) => l.trim());
+    if (userMessage.match(/(想死|痛苦|沒人愛|不想活|崩潰|壓力|絕望)/)) {
+      risk = "high";
+    }
+
+    const lines = content.split("\n").filter((l) => l.trim());
     if (lines.length >= 2) {
       quote = lines[lines.length - 1].replace(/["「」]/g, "").trim();
     }
 
-    if (userMessage.includes("想死") || userMessage.includes("沒人愛") || userMessage.includes("痛苦")) {
-      risk = "high";
-    }
-
-    return {
+    callback(null, {
       statusCode: 200,
-      body: JSON.stringify({ reply, quote, risk }),
-    };
-  } catch (error) {
-    console.error("GPT Function error:", error);
-    return {
+      body: JSON.stringify({
+        reply: content,
+        quote: quote,
+        risk: risk,
+      }),
+    });
+  } catch (err) {
+    console.error("GPT Function Error:", err.message);
+    callback(null, {
       statusCode: 500,
-      body: JSON.stringify({ error: "GPT Function 執行錯誤" }),
-    };
+      body: JSON.stringify({ error: "GPT function error" }),
+    });
   }
 };
