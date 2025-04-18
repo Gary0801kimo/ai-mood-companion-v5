@@ -2,7 +2,7 @@
 const fetch = require("node-fetch");
 
 exports.handler = async function (event, context) {
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  const OPENAI_API_KEY = process.env.VITE_OPENAI_API_KEY;
   console.log("=== GPT Function Called ===");
 
   try {
