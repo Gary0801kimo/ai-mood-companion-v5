@@ -47,6 +47,7 @@ exports.handler = async function (event) {
       body: JSON.stringify({ reply, quote, risk, debug: true }),
     };
   } catch (err) {
+    console.error("GPT ERROR:", err.message);
     return {
       statusCode: 200,
       body: JSON.stringify({
