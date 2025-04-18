@@ -1,11 +1,11 @@
-import { Resend } from 'resend';
+const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export default async (req) => {
+exports.handler = async (event) => {
   try {
-    const body = JSON.parse(req.body);
-    const formatted = body.messages.map((m, i) => {
-      return \`\${m.role.toUpperCase()}：\${m.content}\${
+    const body = JSON.parse(event.body);
+    const formatted = body.messages.map((m) => {
+      return `${m.role.toUpperCase()}：${m.content}${
         m.quote ? `\n💬 金句：「\${m.quote}」\n🧠 憂鬱傾向：\${m.depressionRisk}` : ''
       }`;
     }).join('\n\n');
