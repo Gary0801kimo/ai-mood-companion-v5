@@ -7,23 +7,12 @@ function App() {
   const { t, i18n } = useTranslation();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
-  const [lang, setLang] = useState('zh');
+  const [lang, setLang] = useState('zhTW');
   const chatRef = useRef(null);
 
   useEffect(() => {
-    i18n.changeLanguage('zh');
+    i18n.changeLanguage('zhTW');
   }, []);
-
-  useEffect(() => {
-    window.addEventListener('beforeunload', () => {
-      fetch('/.netlify/functions/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages }),
-        keepalive: true,
-      });
-    });
-  }, [messages]);
 
   useEffect(() => {
     if (chatRef.current) {
@@ -51,11 +40,17 @@ function App() {
         quote: data.quote || '',
         risk: data.risk || '',
         debug: data.debug || false,
-        error: data.error || '',
+        error: data.error || ''
       };
       setMessages([...updatedMessages, botMessage]);
     } catch (err) {
-      console.error('GPT 呼叫錯誤:', err);
+      setMessages([...updatedMessages, {
+        role: 'assistant',
+        reply: '（系統錯誤，請通知開發人員～系統可能儲值囉～）',
+        quote: '',
+        risk: '',
+        error: err.message
+      }]);
     }
   };
 
@@ -82,12 +77,13 @@ function App() {
               setLang(e.target.value);
               i18n.changeLanguage(e.target.value);
             }}>
-              <option value="zh">繁體中文</option>
+              <option value="zhTW">繁體中文</option>
               <option value="en">English</option>
               <option value="ja">日本語</option>
               <option value="th">ไทย</option>
               <option value="fil">Filipino</option>
               <option value="id">Bahasa Indonesia</option>
+              <option value="vi">Tiếng Việt</option>
             </select>
           </div>
         </div>
@@ -111,6 +107,12 @@ function App() {
                 ) : (
                   <div>
                     <div>🌤️ AI 回覆：{m.reply}</div>
+                    {m.error && (
+                      <div style={{ color: 'red', fontSize: '0.9rem' }}>
+                        ❗錯誤訊息：{m.error}<br />
+                        🚨 請通知開發人員～系統可能儲值囉～
+                      </div>
+                    )}
                     {m.quote && m.reply !== '（AI 回覆失敗）' && (
                       <div style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>
                         🌸 療癒金句：「{m.quote}」
@@ -133,7 +135,7 @@ function App() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={t('message_placeholder')}
+            placeholder={t('placeholder')}
             style={{
               flex: 1,
               padding: '0.5rem',
