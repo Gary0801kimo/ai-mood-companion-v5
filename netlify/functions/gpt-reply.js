@@ -11,7 +11,7 @@ const systemPrompts = {
 };
 
 exports.handler = async function (event, context) {
-  const OPENAI_API_KEY = process.env.VITE_OPENAI_API_KEY;
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
   try {
     const body = JSON.parse(event.body || "{}");
     const userMessage = body.message || "";
@@ -50,10 +50,15 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({ reply, quote, risk }),
     };
   } catch (err) {
-    console.error("GPT FETCH ERROR", err);
+    console.error("GPT FETCH ERROR:", err);
+    const fullResponse = err.response ? await err.response.text() : "No response body";
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "gpt fetch failed", details: err.message }),
+      body: JSON.stringify({
+        error: "gpt fetch failed",
+        message: err.message,
+        full: fullResponse,
+      }),
     };
   }
 };
