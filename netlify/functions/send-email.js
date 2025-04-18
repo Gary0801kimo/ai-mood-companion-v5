@@ -1,27 +1,31 @@
 import { Resend } from 'resend';
-
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export default async (req, res) => {
+export default async (req) => {
   try {
-    const { messages } = req.body;
-
-    const formatted = messages.map((msg, i) => {
-      const isAI = msg.role === 'assistant';
-      return `${isAI ? '🌤️ AI' : '🧑 使用者'}：${msg.content}${
-        msg.quote ? `\n💬 金句：「${msg.quote}」\n🧠 憂鬱傾向：${msg.depressionRisk}` : ''
+    const body = JSON.parse(req.body);
+    const formatted = body.messages.map((m, i) => {
+      return \`\${m.role.toUpperCase()}：\${m.content}\${
+        m.quote ? `\n💬 金句：「\${m.quote}」\n🧠 憂鬱傾向：\${m.depressionRisk}` : ''
       }`;
     }).join('\n\n');
 
-    const result = await resend.emails.send({
-      from: 'AI Mood <noreply@mood.ai>',
+    await resend.emails.send({
+      from: 'AI Mood <onboarding@resend.dev>',
       to: '413155305@m365.fju.edu.tw',
-      subject: 'AI Mood 心情紀錄',
+      subject: '你的 AI Mood 心情紀錄',
       text: formatted
     });
 
-    return res.status(200).json({ status: 'sent', result });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true })
+    };
+  } catch (e) {
+    console.error('寄信錯誤：', e);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: e.message })
+    };
   }
 };
