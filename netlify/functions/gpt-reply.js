@@ -9,7 +9,7 @@ const openai = new OpenAIApi(configuration);
 
 exports.handler = async (event) => {
   try {
-    const { messages, lang } = JSON.parse(event.body);
+    const { messages, lang } = JSON.parse(event.body || '{}');
     const promptLang = lang || 'zh';
 
     const systemPrompt = {
@@ -32,7 +32,6 @@ exports.handler = async (event) => {
 
     const fullReply = completion.data.choices[0].message.content;
 
-    // 嘗試解析金句與憂鬱傾向
     const quoteMatch = fullReply.match(/金句[:：\s「"]?(.*?)["」\n]/) || fullReply.match(/Quote[:：\s「"]?(.*?)["」\n]/);
     const riskMatch = fullReply.match(/憂鬱傾向[:：]?(低|中|高)/) || fullReply.match(/depression risk[:：]?(low|medium|high)/i);
 
@@ -45,9 +44,14 @@ exports.handler = async (event) => {
       })
     };
   } catch (err) {
+    console.error("GPT 錯誤：", err);
     return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "GPT 分析失敗", detail: err.message })
+      statusCode: 200,
+      body: JSON.stringify({
+        reply: '（系統錯誤，請稍後再試）',
+        quote: '',
+        depressionRisk: ''
+      })
     };
   }
 };
