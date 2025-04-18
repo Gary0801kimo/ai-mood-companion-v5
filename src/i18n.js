@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -42,6 +43,13 @@ const resources = {
       title: "AI Mood Companion",
       placeholder: "Kumusta ang iyong pakiramdam?",
       send: "Ipadala"
+    }
+  },
+  vi: {
+    translation: {
+      title: "Người bạn đồng hành AI",
+      placeholder: "Bạn cảm thấy thế nào?",
+      send: "Gửi"
     }
   }
 };
