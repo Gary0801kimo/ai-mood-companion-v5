@@ -62,7 +62,6 @@ export default function App() {
     setMessages(prev => [...prev, aiMsg]);
   };
 
-  const testSend = async () => {
     const res = await fetch('/.netlify/functions/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -152,7 +151,6 @@ export default function App() {
         }}>{t('send')}</button>
       </div>
 
-      <button onClick={testSend} style={{
         padding: '0.5rem 1rem',
         borderRadius: '0.5rem',
         background: '#10b981',
