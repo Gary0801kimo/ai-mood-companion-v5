@@ -3,29 +3,27 @@ import { useTranslation } from 'react-i18next';
 import './index.css';
 import './i18n';
 
-export default function App() {
+export default 
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      fetch('/.netlify/functions/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages }),
+        keepalive: true
+      });
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [messages]);
+function App() {
   const { t, i18n } = useTranslation();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
   const bottomRef = useRef(null);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (messages.length > 0) {
-        fetch('/.netlify/functions/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages }),
-          keepalive: true
-        });
-    };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [messages]);
+  
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -74,6 +72,7 @@ export default function App() {
     } else {
       alert('❌ 測試寄信失敗！');
       console.error(result);
+    }
   };
 
   return (
@@ -156,3 +155,4 @@ export default function App() {
         fontSize: '0.9rem'
     </div>
   );
+}
