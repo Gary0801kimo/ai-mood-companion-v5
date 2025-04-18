@@ -50,15 +50,9 @@ exports.handler = async function (event, context) {
       body: JSON.stringify({ reply, quote, risk }),
     };
   } catch (err) {
-    console.error("GPT FETCH ERROR:", err);
-    const fullResponse = err.response ? await err.response.text() : "No response body";
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "gpt fetch failed",
-        message: err.message,
-        full: fullResponse,
-      }),
+      body: JSON.stringify({ error: "gpt fetch failed" }),
     };
   }
 };
