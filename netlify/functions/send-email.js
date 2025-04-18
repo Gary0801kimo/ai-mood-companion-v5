@@ -1,13 +1,19 @@
+
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 exports.handler = async (event) => {
   try {
     const body = JSON.parse(event.body);
+
     const formatted = body.messages.map((m) => {
-      return `${m.role.toUpperCase()}：${m.content}${
-        m.quote ? `\n💬 金句：「${m.quote}」\n🧠 憂鬱傾向：${m.depressionRisk}` : ''
-      }`;
+      if (m.role === 'user') {
+        return `👤 使用者：${m.content}`;
+      } else {
+        return `🌤️ AI 回覆：${m.reply || '（AI 回覆失敗）'}\n` +
+               (m.quote ? `🌸 金句：「${m.quote}」\n` : '') +
+               (m.risk === 'high' ? '🧠 憂鬱傾向：有偵測到情緒低落，請多關心自己或尋求支持。' : '');
+      }
     }).join('\n\n');
 
     await resend.emails.send({

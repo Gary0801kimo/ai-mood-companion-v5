@@ -4,7 +4,10 @@ const fetch = require("node-fetch");
 const systemPrompts = {
   zh: "你是一位溫柔療癒系的 AI 心靈好友「🌤️」，請根據使用者的情緒內容，給出溫暖的回應與具體建議。請將回覆結尾加上一句療癒金句（可用「療癒金句：」標示）。",
   en: "You are a gentle, therapeutic AI friend named '🌤️'. Based on the user's emotional message, reply warmly and naturally with practical support. At the end of your message, include a healing quote, starting with 'Quote:'.",
-  ja: "あなたは癒し系AIの「🌤️」です。ユーザーの感情に寄り添い、優しい言葉で励ましてください。最後に癒しの一言を付けてください（「癒しの言葉：」で始めてください）。"
+  ja: "あなたは癒し系AIの「🌤️」です。ユーザーの感情に寄り添い、優しい言葉で励ましてください。最後に癒しの一言を付けてください（「癒しの言葉：」で始めてください）。",
+  th: "คุณคือเพื่อน AI แนวเยียวยาชื่อ '🌤️' ช่วยตอบข้อความของผู้ใช้ด้วยถ้อยคำที่อบอุ่น และมีคำคมปลอบใจท้ายข้อความ โดยเริ่มต้นว่า 'คำปลอบใจ:'",
+  fil: "Ikaw ay isang AI kaibigan na puno ng pag-unawa at malasakit. Sagutin mo ang mga emosyonal na mensahe ng user sa magaan, mapagkalinga, at natural na paraan. Sa dulo, magdagdag ng isang nakaaaliw na kasabihan gamit ang “Kasabihan:”.",
+  id: "Kamu adalah sahabat AI yang lembut dan penuh empati. Tanggapi pesan emosional pengguna dengan hangat dan alami. Di akhir jawabanmu, tambahkan satu kutipan penyemangat dengan awalan “Kutipan:”."
 };
 
 exports.handler = async function (event) {
@@ -51,11 +54,16 @@ exports.handler = async function (event) {
     let reply = content;
     let quote = "";
 
-    // 嘗試依標示切開
-    const match = content.match(/(?:療癒金句|Quote|癒しの言葉)[：:\-]?(.*)/);
-    if (match) {
-      quote = match[1].trim().replace(/["「」]/g, "");
-      reply = content.replace(match[0], "").trim();
+    const quoteMarkers = [
+      /(?:療癒金句|Quote|癒しの言葉|คำปลอบใจ|Kasabihan|Kutipan)[：:\-]?(.*)/i
+    ];
+    for (const marker of quoteMarkers) {
+      const match = content.match(marker);
+      if (match) {
+        quote = match[1].trim().replace(/["「」]/g, "");
+        reply = content.replace(match[0], "").trim();
+        break;
+      }
     }
 
     let risk = "low";
