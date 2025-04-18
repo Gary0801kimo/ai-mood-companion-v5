@@ -7,7 +7,7 @@ function App() {
   const { t, i18n } = useTranslation();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
-  const [lang, setLang] = useState('zh');
+  const [lang, setLang] = useState('zh'); i18n.changeLanguage('zh');
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -26,6 +26,8 @@ function App() {
     const botMessage = {
       role: 'assistant',
       content: data.reply,
+      quote: data.quote,
+      depressionRisk: data.depressionRisk,
       quote: data.quote,
       depressionRisk: data.depressionRisk
     };
@@ -57,7 +59,7 @@ function App() {
       <div style={{ maxWidth: 600, margin: '0 auto', background: '#ffffffcc', padding: '1rem', borderRadius: '1rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
           <h2>AI Mood Companion</h2>
-          <select value={lang} onChange={(e) => {
+          <span style={{ marginRight: 8 }}>🌐</span><select value={lang} onChange={(e) => {
             setLang(e.target.value);
             i18n.changeLanguage(e.target.value);
           }}>
@@ -100,7 +102,7 @@ function App() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t('message_placeholder')}
-            style={{ flex: 1, padding: '0.5rem', borderRadius: '0.5rem 0 0 0.5rem', border: '1px solid #ccc' }}
+            style={{ flex: 1, padding: '0.5rem', fontSize: '1rem', borderRadius: '0.5rem 0 0 0.5rem', border: '1px solid #ccc' }}
           />
           <button onClick={handleSend} style={{
             padding: '0.5rem 1rem',
